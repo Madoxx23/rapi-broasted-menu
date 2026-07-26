@@ -76,28 +76,27 @@ header{background:var(--red);position:sticky;top:0;z-index:200}
 .hero-sub{color:rgba(255,255,255,0.65);font-size:0.88rem;font-weight:500;margin-top:12px;letter-spacing:0.5px}
 
 /* ═══ CAT NAV ═══ */
-.cat-nav{background:var(--bg);padding:28px 16px 16px;max-width:1100px;margin:0 auto}
-.cat-nav-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:0.85rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px}
-.cat-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+.cat-nav-sticky{position:sticky;top:var(--header-h,60px);z-index:150;background:var(--bg);border-bottom:1px solid transparent;transition:border-color 0.2s}
+.cat-nav-sticky.stuck{border-color:var(--border)}
+.cat-nav{max-width:1100px;margin:0 auto;padding:14px 16px 12px}
+.cat-nav-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:0.85rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
+.cat-grid{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x proximity;-ms-overflow-style:none;scrollbar-width:none;padding-bottom:2px}
+.cat-grid::-webkit-scrollbar{display:none}
 .cat-tile{
-  background:var(--white);border:2px solid var(--border);border-radius:14px;
-  padding:12px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;
-  cursor:pointer;transition:all 0.18s;position:relative;overflow:hidden;
+  background:var(--white);border:2px solid var(--border);border-radius:999px;
+  padding:9px 16px;display:flex;flex-direction:row;align-items:center;gap:7px;
+  cursor:pointer;transition:all 0.18s;flex-shrink:0;white-space:nowrap;scroll-snap-align:start;
 }
-.cat-tile::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--yellow);transform:scaleX(0);transition:transform 0.18s}
-.cat-tile:hover{border-color:var(--yellow);transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,0.1)}
-.cat-tile:hover::after{transform:scaleX(1)}
-.cat-tile.active{background:var(--red);border-color:var(--red);transform:translateY(-3px);box-shadow:0 8px 24px rgba(204,0,0,0.3)}
-.cat-tile.active::after{display:none}
+.cat-tile:hover{border-color:var(--yellow)}
+.cat-tile.active{background:var(--red);border-color:var(--red);box-shadow:0 4px 14px rgba(204,0,0,0.3)}
 .cat-tile.active .cat-label{color:#fff}
-.cat-icon{font-size:1.5rem;line-height:1}
-.cat-label{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.65rem;letter-spacing:0.5px;text-transform:uppercase;color:var(--text);text-align:center;line-height:1.2}
+.cat-icon{font-size:1.05rem;line-height:1}
+.cat-label{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.78rem;letter-spacing:0.5px;text-transform:uppercase;color:var(--text);line-height:1.2}
 
 /* ═══ MAIN ═══ */
 main{max-width:1100px;margin:0 auto;padding:20px 16px 80px}
-.section{display:none;animation:fadeUp 0.28s ease}
-.section.active{display:block}
-@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.section{scroll-margin-top:calc(var(--header-h,60px) + 64px);margin-top:44px}
+.section:first-of-type{margin-top:0}
 .section-header{display:flex;align-items:flex-end;gap:12px;margin-bottom:18px}
 .section-header h2{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:2rem;color:var(--dark);text-transform:uppercase;letter-spacing:-0.5px}
 .section-line{flex:1;height:2px;background:var(--yellow);border-radius:2px;margin-bottom:6px}
@@ -331,7 +330,6 @@ footer strong{color:var(--yellow)}
 
 /* ═══ RESPONSIVE ═══ */
 @media(max-width:599px){
-  .cat-grid{grid-template-columns:repeat(4,1fr)}
   .grid{grid-template-columns:repeat(2,1fr)}
   .card-img{height:130px}
   .hero-title{font-size:2.8rem}
@@ -389,36 +387,38 @@ footer strong{color:var(--yellow)}
 </div>
 
 <!-- CATEGORY NAV -->
-<div class="cat-nav">
-  <div class="cat-nav-title">Nuestro Menú</div>
-  <div class="cat-grid">
-    <div class="cat-tile active" onclick="showCat('broasted',this)">
-      <span class="cat-icon">🍗</span><span class="cat-label">Broasted</span>
-    </div>
-    <div class="cat-tile" onclick="showCat('rosty',this)">
-      <span class="cat-icon">🍖</span><span class="cat-label">Rosty</span>
-    </div>
-    <div class="cat-tile" onclick="showCat('promos',this)">
-      <span class="cat-icon">🎉</span><span class="cat-label">Promos</span>
-    </div>
-    <div class="cat-tile" onclick="showCat('favoritos',this)">
-      <span class="cat-icon">⭐</span><span class="cat-label">Favoritos</span>
-    </div>
-    <div class="cat-tile" onclick="showCat('capitan',this)">
-      <span class="cat-icon">🎖</span><span class="cat-label">Capitán Rapi</span>
-    </div>
-    <div class="cat-tile" onclick="showCat('adiciones',this)">
-      <span class="cat-icon">➕</span><span class="cat-label">Adiciones</span>
-    </div>
-    <div class="cat-tile" onclick="showCat('bebidas',this)">
-      <span class="cat-icon">🥤</span><span class="cat-label">Bebidas</span>
+<div class="cat-nav-sticky" id="catNavSticky">
+  <div class="cat-nav">
+    <div class="cat-nav-title">Nuestro Menú</div>
+    <div class="cat-grid">
+      <div class="cat-tile active" data-cat="broasted" onclick="scrollToCat('broasted',this)">
+        <span class="cat-icon">🍗</span><span class="cat-label">Broasted</span>
+      </div>
+      <div class="cat-tile" data-cat="rosty" onclick="scrollToCat('rosty',this)">
+        <span class="cat-icon">🍖</span><span class="cat-label">Rosty</span>
+      </div>
+      <div class="cat-tile" data-cat="promos" onclick="scrollToCat('promos',this)">
+        <span class="cat-icon">🎉</span><span class="cat-label">Promos</span>
+      </div>
+      <div class="cat-tile" data-cat="favoritos" onclick="scrollToCat('favoritos',this)">
+        <span class="cat-icon">⭐</span><span class="cat-label">Favoritos</span>
+      </div>
+      <div class="cat-tile" data-cat="capitan" onclick="scrollToCat('capitan',this)">
+        <span class="cat-icon">🎖</span><span class="cat-label">Capitán Rapi</span>
+      </div>
+      <div class="cat-tile" data-cat="adiciones" onclick="scrollToCat('adiciones',this)">
+        <span class="cat-icon">➕</span><span class="cat-label">Adiciones</span>
+      </div>
+      <div class="cat-tile" data-cat="bebidas" onclick="scrollToCat('bebidas',this)">
+        <span class="cat-icon">🥤</span><span class="cat-label">Bebidas</span>
+      </div>
     </div>
   </div>
 </div>
 
 <!-- MAIN SECTIONS -->
 <main>
-  <div class="section active" id="broasted">
+  <div class="section" id="broasted">
     <div class="section-header"><h2>Broasted</h2><div class="section-line"></div></div>
     <div class="combo-list" id="broasted-list"></div>
   </div>
@@ -771,14 +771,55 @@ document.getElementById('capitan-grid').innerHTML=capitan.map(card).join('');
 document.getElementById('adiciones-grid').innerHTML=adiciones.map(smallCard).join('');
 document.getElementById('bebidas-grid').innerHTML=bebidas.map(smallCard).join('');
 
-function showCat(id,el){
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.cat-tile').forEach(t=>t.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  el.classList.add('active');
-  el.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
-  document.querySelector('main').scrollIntoView({behavior:'smooth'});
+// ── STICKY OFFSETS ──
+function setStickyOffsets(){
+  const headerH=document.querySelector('header').offsetHeight;
+  document.documentElement.style.setProperty('--header-h',headerH+'px');
 }
+setStickyOffsets();
+window.addEventListener('load',setStickyOffsets);
+window.addEventListener('resize',setStickyOffsets);
+
+// ── CATEGORY NAV: scroll to section + scroll-spy ──
+const sections=Array.from(document.querySelectorAll('.section'));
+const catNavSticky=document.getElementById('catNavSticky');
+let suppressSpy=false,suppressTimeout;
+
+function setActivePill(id){
+  document.querySelectorAll('.cat-tile').forEach(t=>t.classList.toggle('active',t.dataset.cat===id));
+  document.querySelector(`.cat-tile[data-cat="${id}"]`)?.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+}
+
+function scrollToCat(id,el){
+  setActivePill(id);
+  const target=document.getElementById(id);
+  const navH=catNavSticky.offsetHeight;
+  const y=target.getBoundingClientRect().top+window.pageYOffset-navH-14;
+  window.scrollTo({top:y,behavior:'smooth'});
+  suppressSpy=true;
+  clearTimeout(suppressTimeout);
+  suppressTimeout=setTimeout(()=>{suppressSpy=false},700);
+}
+
+let ticking=false;
+function updateOnScroll(){
+  catNavSticky.classList.toggle('stuck',window.scrollY>0);
+  if(!suppressSpy){
+    const line=document.querySelector('header').offsetHeight+catNavSticky.offsetHeight+16;
+    let current=sections[0];
+    for(const sec of sections){
+      if(sec.getBoundingClientRect().top-line<=0) current=sec; else break;
+    }
+    setActivePillSilently(current.id);
+  }
+  ticking=false;
+}
+function setActivePillSilently(id){
+  document.querySelectorAll('.cat-tile').forEach(t=>t.classList.toggle('active',t.dataset.cat===id));
+}
+window.addEventListener('scroll',()=>{
+  if(!ticking){requestAnimationFrame(updateOnScroll);ticking=true}
+},{passive:true});
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
