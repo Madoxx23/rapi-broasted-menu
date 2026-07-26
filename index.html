@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rapi Broasted · Neiva</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --red:#CC0000;
+  --red2:#E60000;
+  --yellow:#FFC72C;
+  --yellow2:#FFD63A;
+  --dark:#1A1A1A;
+  --bg:#F5F0E8;
+  --white:#FFFFFF;
+  --text:#1A1A1A;
+  --muted:#666;
+  --border:#E0D8CC;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-height:100vh;overflow-x:hidden}
+
+/* ═══ HEADER ═══ */
+header{background:var(--red);position:sticky;top:0;z-index:200}
+.header-top{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 20px;max-width:1100px;margin:0 auto;gap:12px;
+}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-mark{
+  width:40px;height:40px;background:var(--yellow);border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.4rem;
+  color:var(--red);flex-shrink:0;
+}
+.logo-text{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.45rem;color:#fff;letter-spacing:1px;text-transform:uppercase;line-height:1}
+.logo-text span{color:var(--yellow);display:block;font-size:0.62rem;font-weight:700;letter-spacing:3px;opacity:0.9}
+.header-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+/* Horario pill */
+.hours-pill{
+  background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);
+  border-radius:20px;padding:6px 12px;
+  display:flex;align-items:center;gap:6px;
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:0.75rem;color:#fff;letter-spacing:0.5px;text-transform:uppercase;
+  cursor:pointer;transition:background 0.15s;position:relative;
+}
+.hours-pill:hover{background:rgba(255,255,255,0.2)}
+.hours-pill .dot{width:7px;height:7px;background:#4ade80;border-radius:50%;animation:pulse 1.8s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+/* Horario tooltip */
+.hours-tooltip{
+  position:absolute;top:calc(100% + 8px);right:0;
+  background:var(--dark);color:#fff;border-radius:10px;
+  padding:12px 16px;min-width:200px;
+  font-family:'Barlow',sans-serif;font-size:0.8rem;font-weight:400;
+  text-transform:none;letter-spacing:0;
+  box-shadow:0 8px 30px rgba(0,0,0,0.25);
+  display:none;pointer-events:none;z-index:99;
+}
+.hours-tooltip::before{content:'';position:absolute;top:-5px;right:18px;width:10px;height:10px;background:var(--dark);transform:rotate(45deg)}
+.hours-pill:hover .hours-tooltip,.hours-pill:focus .hours-tooltip{display:block}
+.hours-tooltip strong{color:var(--yellow);display:block;font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;margin-bottom:4px;font-weight:800;text-transform:uppercase}
+.hours-tooltip .dom-note{color:rgba(255,255,255,0.55);font-size:0.72rem;margin-top:6px;border-top:1px solid rgba(255,255,255,0.1);padding-top:6px}
+
+/* ═══ HERO ═══ */
+.hero{background:var(--red);padding:0 20px 44px;text-align:center;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:44px;background:var(--bg);border-radius:40px 40px 0 0}
+.hero-eyebrow{display:inline-block;background:var(--yellow);color:var(--dark);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:0.72rem;letter-spacing:3px;text-transform:uppercase;padding:5px 16px;border-radius:30px;margin-bottom:12px}
+.hero-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:clamp(3rem,10vw,5rem);color:#fff;text-transform:uppercase;line-height:0.9;letter-spacing:-1px}
+.hero-title .accent{-webkit-text-stroke:2px #fff;color:transparent;display:block}
+.hero-title .yellow{color:var(--yellow);display:block}
+.hero-sub{color:rgba(255,255,255,0.65);font-size:0.88rem;font-weight:500;margin-top:12px;letter-spacing:0.5px}
+
+/* ═══ CAT NAV ═══ */
+.cat-nav{background:var(--bg);padding:28px 16px 16px;max-width:1100px;margin:0 auto}
+.cat-nav-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:0.85rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px}
+.cat-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+.cat-tile{
+  background:var(--white);border:2px solid var(--border);border-radius:14px;
+  padding:12px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;
+  cursor:pointer;transition:all 0.18s;position:relative;overflow:hidden;
+}
+.cat-tile::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--yellow);transform:scaleX(0);transition:transform 0.18s}
+.cat-tile:hover{border-color:var(--yellow);transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,0.1)}
+.cat-tile:hover::after{transform:scaleX(1)}
+.cat-tile.active{background:var(--red);border-color:var(--red);transform:translateY(-3px);box-shadow:0 8px 24px rgba(204,0,0,0.3)}
+.cat-tile.active::after{display:none}
+.cat-tile.active .cat-label{color:#fff}
+.cat-icon{font-size:1.5rem;line-height:1}
+.cat-label{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.65rem;letter-spacing:0.5px;text-transform:uppercase;color:var(--text);text-align:center;line-height:1.2}
+
+/* ═══ MAIN ═══ */
+main{max-width:1100px;margin:0 auto;padding:20px 16px 80px}
+.section{display:none;animation:fadeUp 0.28s ease}
+.section.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.section-header{display:flex;align-items:flex-end;gap:12px;margin-bottom:18px}
+.section-header h2{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:2rem;color:var(--dark);text-transform:uppercase;letter-spacing:-0.5px}
+.section-line{flex:1;height:2px;background:var(--yellow);border-radius:2px;margin-bottom:6px}
+
+/* ═══ PLACEHOLDER DE FOTO ═══ */
+/* Se usa mientras no haya foto real del producto. Para poner la foto real,
+   agrega img:'ruta-o-url.jpg' al producto en los arreglos de datos (más abajo)
+   y este bloque se reemplaza automáticamente por la imagen. */
+.img-placeholder{
+  width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+  background:repeating-linear-gradient(45deg,#f0e8da,#f0e8da 10px,#ece2d1 10px,#ece2d1 20px);
+  color:#b3a68f;
+}
+.img-placeholder svg{width:26px;height:26px;opacity:0.55}
+.img-placeholder span{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.6rem;text-transform:uppercase;letter-spacing:1.5px;opacity:0.75}
+
+/* ═══ PRODUCT GRID ═══ */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:14px}
+.card{background:var(--white);border-radius:16px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:all 0.2s;display:flex;flex-direction:column;box-shadow:0 2px 10px rgba(0,0,0,0.06)}
+.card:hover{border-color:var(--yellow);box-shadow:0 8px 28px rgba(0,0,0,0.12);transform:translateY(-4px)}
+.card-img{height:155px;background:#f5f0e8;overflow:hidden;flex-shrink:0;position:relative}
+.card-img img{width:100%;height:100%;object-fit:cover;transition:transform 0.4s}
+.card:hover .card-img img{transform:scale(1.07)}
+.card-tag{position:absolute;top:9px;left:9px;background:var(--red);color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.62rem;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:6px}
+.card-body{padding:11px 13px;flex:1;display:flex;flex-direction:column}
+.card-name{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1rem;color:var(--dark);text-transform:uppercase;letter-spacing:0.3px;line-height:1.2}
+.card-desc{font-size:0.7rem;color:var(--muted);line-height:1.5;margin-top:4px;flex:1}
+.card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:9px;border-top:1px solid var(--border)}
+.card-price{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.25rem;color:var(--red)}
+.add-btn{background:var(--yellow);color:var(--dark);border:none;width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:1.15rem;font-weight:700;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0}
+.add-btn:hover{background:var(--yellow2);transform:scale(1.1)}
+.add-btn.added{background:#27AE60;color:#fff;animation:pop 0.3s ease}
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.25)}100%{transform:scale(1)}}
+
+/* ═══ COMBOS ═══ */
+.combo-list{display:flex;flex-direction:column;gap:10px}
+.combo-card{
+  background:var(--white);border-radius:14px;padding:14px 18px;
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  cursor:pointer;border:2px solid transparent;
+  box-shadow:0 2px 10px rgba(0,0,0,0.06);transition:all 0.18s;
+}
+.combo-card:hover{border-color:var(--yellow);transform:translateX(4px)}
+.combo-img{width:72px;height:72px;border-radius:14px;overflow:hidden;flex-shrink:0;background:#f5f0e8;position:relative}
+.combo-img img{width:100%;height:100%;object-fit:cover}
+.combo-info{flex:1;min-width:0}
+.combo-name{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.1rem;color:var(--dark);text-transform:uppercase;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.combo-desc{font-size:0.78rem;color:var(--muted);margin-top:2px}
+.combo-alt{font-size:0.72rem;color:var(--red);font-weight:600;margin-top:4px}
+.combo-right{text-align:right;flex-shrink:0}
+.combo-price{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.35rem;color:var(--red)}
+.combo-btn{display:block;margin-top:6px;background:var(--yellow);color:var(--dark);border:none;padding:6px 14px;border-radius:8px;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;text-transform:uppercase;transition:background 0.15s}
+.combo-btn:hover{background:var(--yellow2)}
+.combo-badge{background:var(--red);color:#fff;font-size:0.6rem;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;padding:2px 7px;border-radius:6px}
+
+/* ═══ SMALL GRID ═══ */
+.small-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:10px}
+.small-card{background:var(--white);border-radius:12px;padding:11px 13px;display:flex;align-items:center;justify-content:space-between;gap:8px;border:2px solid transparent;box-shadow:0 2px 8px rgba(0,0,0,0.05);transition:all 0.18s;cursor:pointer}
+.small-card:hover{border-color:var(--yellow);transform:translateY(-2px)}
+.small-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.88rem;color:var(--dark);text-transform:uppercase;line-height:1.2;flex:1}
+.small-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.small-price{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:0.95rem;color:var(--red)}
+
+
+
+/* ═══ SEDES ═══ */
+.sedes-section{max-width:1100px;margin:0 auto;padding:24px 16px 32px}
+.sedes-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.6rem;text-transform:uppercase;color:var(--dark);margin-bottom:4px;letter-spacing:-0.5px}
+.sedes-sub{font-size:0.8rem;color:var(--muted);margin-bottom:16px}
+.map-wrap{background:var(--white);border-radius:18px;overflow:hidden;border:2px solid var(--border);box-shadow:0 4px 24px rgba(0,0,0,0.08)}
+#sede-map{height:340px;width:100%;display:block}
+.sedes-cards{display:grid;grid-template-columns:1fr;max-width:380px;margin:0 auto;gap:10px;padding:12px}
+.sede-card{background:var(--bg);border-radius:12px;padding:12px 14px;border:2px solid transparent;display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit;transition:all 0.18s;cursor:pointer}
+.sede-card:hover,.sede-card.active{border-color:var(--red);background:var(--white);box-shadow:0 4px 14px rgba(204,0,0,0.1)}
+.sede-pin{width:38px;height:38px;background:var(--red);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.1rem;transition:transform 0.18s}
+.sede-card:hover .sede-pin,.sede-card.active .sede-pin{transform:scale(1.1)}
+.sede-info{flex:1;min-width:0}
+.sede-name{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:0.92rem;text-transform:uppercase;color:var(--dark);letter-spacing:0.3px;line-height:1.2}
+.sede-action{font-size:0.7rem;color:var(--red);font-weight:600;margin-top:3px;display:flex;align-items:center;gap:3px}
+
+/* ═══ FOOTER ═══ */
+footer{background:var(--dark);padding:20px;text-align:center;margin-top:16px}
+footer p{color:rgba(255,255,255,0.4);font-size:0.75rem}
+footer a{color:rgba(255,255,255,0.6);text-decoration:none}
+footer strong{color:var(--yellow)}
+
+/* ═══ FAB ═══ */
+.fab{
+  position:fixed;bottom:24px;right:20px;z-index:300;
+  width:60px;height:60px;background:var(--red);border-radius:16px;border:none;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 6px 24px rgba(204,0,0,0.4);
+  transition:all 0.25s;transform:scale(0) rotate(-10deg);opacity:0;
+}
+.fab.visible{transform:scale(1) rotate(0);opacity:1;animation:fabIn 0.4s cubic-bezier(0.34,1.56,0.64,1)}
+@keyframes fabIn{from{transform:scale(0) rotate(-15deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+.fab:hover{transform:scale(1.06);background:var(--red2)}
+.fab svg{width:26px;height:26px;fill:#fff}
+.fab-badge{position:absolute;top:-8px;right:-8px;background:var(--yellow);color:var(--dark);border-radius:10px;padding:2px 7px;font-size:0.7rem;font-weight:800;font-family:'Barlow Condensed',sans-serif;box-shadow:0 2px 8px rgba(0,0,0,0.2);transform:scale(0);transition:transform 0.2s cubic-bezier(0.34,1.56,0.64,1)}
+.fab-badge.show{transform:scale(1)}
+
+/* ═══ TOAST ═══ */
+.toast{
+  position:fixed;bottom:96px;right:20px;z-index:299;
+  background:var(--dark);color:#fff;
+  padding:10px 14px;border-radius:12px;
+  font-size:0.8rem;font-weight:600;
+  display:flex;align-items:center;gap:8px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.25);
+  transform:translateY(10px) scale(0.95);opacity:0;
+  transition:all 0.22s cubic-bezier(0.34,1.56,0.64,1);
+  pointer-events:none;max-width:220px;
+  border-left:4px solid var(--yellow);
+}
+.toast.show{transform:translateY(0) scale(1);opacity:1}
+.toast-icon{background:var(--yellow);color:var(--dark);border-radius:6px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:0.85rem;flex-shrink:0}
+
+/* ═══ MODAL: CART / CHECKOUT FLOW ═══ */
+/* Step 1 = cart review, Step 2 = fill data, Step 3 = confirm */
+.overlay{position:fixed;inset:0;z-index:400;background:rgba(0,0,0,0.55);backdrop-filter:blur(3px);display:none}
+.overlay.open{display:block}
+.side-panel{
+  position:fixed;right:0;top:0;bottom:0;width:100%;max-width:440px;
+  background:var(--white);display:flex;flex-direction:column;
+  transform:translateX(110%);transition:transform 0.32s cubic-bezier(0.32,0.72,0,1);z-index:401;
+}
+.overlay.open .side-panel{transform:translateX(0)}
+
+/* MOBILE: bottom sheet */
+@media(max-width:540px){
+  .side-panel{max-width:100%;top:auto;bottom:0;height:94vh;border-radius:22px 22px 0 0;transform:translateY(110%)}
+  .overlay.open .side-panel{transform:translateY(0)}
+  .panel-drag{width:40px;height:4px;background:var(--border);border-radius:2px;margin:10px auto 0}
+}
+@media(min-width:541px){.panel-drag{display:none}}
+
+/* Panel header */
+.panel-head{
+  background:var(--red);padding:16px 20px;
+  display:flex;align-items:center;gap:12px;
+}
+.step-back{
+  background:rgba(255,255,255,0.15);border:none;color:#fff;
+  width:34px;height:34px;border-radius:9px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.1rem;transition:background 0.15s;flex-shrink:0;
+}
+.step-back:hover{background:rgba(255,255,255,0.25)}
+.step-back.hidden{opacity:0;pointer-events:none}
+.panel-head-text{flex:1}
+.panel-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.4rem;color:#fff;text-transform:uppercase;letter-spacing:0.5px;line-height:1}
+.panel-subtitle{font-size:0.7rem;color:rgba(255,255,255,0.65);margin-top:2px;font-weight:500}
+.panel-close{background:rgba(255,255,255,0.15);border:none;color:#fff;width:34px;height:34px;border-radius:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;transition:background 0.15s;flex-shrink:0}
+.panel-close:hover{background:rgba(255,255,255,0.25)}
+
+/* Step indicator */
+.step-dots{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  padding:10px 20px 6px;background:var(--bg);
+}
+.step-dot{
+  height:4px;border-radius:2px;background:var(--border);transition:all 0.25s;
+}
+.step-dot.active{background:var(--red);width:24px}
+.step-dot:not(.active){width:8px}
+
+/* Panel body */
+.panel-body{flex:1;overflow-y:auto;padding:16px 20px}
+
+/* ── STEP 1: Cart items ── */
+.empty-state{text-align:center;padding:50px 20px;color:var(--muted)}
+.empty-emoji{font-size:3.8rem;display:block;margin-bottom:12px}
+.empty-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.3rem;color:var(--dark);text-transform:uppercase}
+.cart-item{display:flex;align-items:flex-start;gap:10px;padding:13px 0;border-bottom:1px solid var(--border)}
+.cart-item-info{flex:1}
+.cart-item-name{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:0.95rem;color:var(--dark);text-transform:uppercase}
+.cart-item-unit{font-size:0.73rem;color:var(--muted);margin-top:1px}
+.cart-item-controls{display:flex;align-items:center;gap:7px;margin-top:7px}
+.qty-btn{background:var(--bg);border:1.5px solid var(--border);color:var(--dark);width:27px;height:27px;border-radius:7px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;font-weight:700;transition:all 0.15s}
+.qty-btn:hover{background:var(--yellow);border-color:var(--yellow)}
+.qty-num{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:0.95rem;min-width:22px;text-align:center}
+.del-btn{background:none;border:none;color:var(--border);cursor:pointer;margin-left:auto;font-size:0.73rem;font-weight:600;transition:color 0.15s;font-family:'Barlow',sans-serif}
+.del-btn:hover{color:var(--red)}
+.cart-item-sub{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1rem;color:var(--red);text-align:right;flex-shrink:0;margin-top:2px}
+
+/* ── STEP 2: Form ── */
+.form-section-label{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:0.8rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:16px 0 10px;display:flex;align-items:center;gap:8px}
+.form-section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin-bottom:4px}
+.field input,.field textarea{
+  width:100%;background:var(--bg);border:2px solid var(--border);
+  border-radius:10px;padding:10px 13px;
+  font-size:0.88rem;color:var(--dark);font-family:'Barlow',sans-serif;
+  transition:border-color 0.15s;
+}
+.field input:focus,.field textarea:focus{outline:none;border-color:var(--yellow);background:#fff}
+.field input::placeholder,.field textarea::placeholder{color:#bbb}
+.field textarea{resize:none}
+.pay-group{display:flex;gap:10px}
+.pay-opt{
+  flex:1;background:var(--bg);border:2px solid var(--border);
+  border-radius:12px;padding:12px 8px;text-align:center;cursor:pointer;transition:all 0.15s;
+}
+.pay-opt:hover{border-color:var(--yellow)}
+.pay-opt.sel{background:var(--yellow);border-color:var(--yellow)}
+.pay-opt-icon{font-size:1.5rem;display:block;margin-bottom:4px}
+.pay-opt-label{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.78rem;text-transform:uppercase;letter-spacing:0.3px;color:var(--dark)}
+
+/* ── STEP 3: Summary ── */
+.summary-box{background:var(--bg);border-radius:14px;padding:14px 16px;margin-bottom:12px}
+.summary-row{display:flex;justify-content:space-between;font-size:0.82rem;padding:4px 0;border-bottom:1px solid var(--border)}
+.summary-row:last-child{border-bottom:none;font-weight:700;font-size:0.92rem;color:var(--dark)}
+.summary-row span:last-child{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:0.95rem;color:var(--red)}
+.summary-data{background:var(--bg);border-radius:14px;padding:14px 16px;margin-bottom:14px}
+.summary-data-item{display:flex;gap:10px;align-items:flex-start;padding:5px 0;font-size:0.82rem}
+.summary-data-item .label{color:var(--muted);font-weight:600;min-width:80px}
+.summary-data-item .value{color:var(--dark);font-weight:500}
+
+/* Panel footer */
+.panel-footer{padding:14px 20px;border-top:2px solid var(--border);background:var(--white)}
+.total-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.total-label{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.9rem;text-transform:uppercase;color:var(--muted);letter-spacing:1px}
+.total-val{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:2rem;color:var(--red)}
+.btn-primary{width:100%;padding:14px;border-radius:11px;border:none;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.05rem;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all 0.18s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-cta{background:var(--yellow);color:var(--dark);box-shadow:0 4px 16px rgba(255,199,44,0.35)}
+.btn-cta:hover{background:var(--yellow2);transform:translateY(-1px)}
+.btn-wa{background:#25D366;color:#fff;box-shadow:0 4px 16px rgba(37,211,102,0.3)}
+.btn-wa:hover{background:#22c55e;transform:translateY(-1px)}
+.btn-wa svg{width:22px;height:22px;fill:#fff;flex-shrink:0}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:599px){
+  .cat-grid{grid-template-columns:repeat(4,1fr)}
+  .grid{grid-template-columns:repeat(2,1fr)}
+  .card-img{height:130px}
+  .hero-title{font-size:2.8rem}
+}
+@media(min-width:800px){.grid{grid-template-columns:repeat(auto-fill,minmax(195px,1fr))}}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-top">
+    <div class="logo">
+      <div class="logo-mark">R</div>
+      <div class="logo-text">
+        Rapi Broasted
+        <span>Neiva · Colombia</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <!-- Editar horario real del negocio aquí -->
+      <div class="hours-pill" tabindex="0">
+        <span class="dot"></span>
+        <span>Abierto Ahora</span>
+        <div class="hours-tooltip">
+          <strong>🕐 Horario</strong>
+          Lunes a Domingo<br>11:00 AM — 9:00 PM
+          <div class="dom-note">🛵 Domicilios hasta las 8:30 PM</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">🍗 Pollo Broasted & Rosty</div>
+  <h1 class="hero-title">
+    <span class="yellow">Rapi</span>
+    <span class="accent">Broasted</span>
+  </h1>
+  <p class="hero-sub">Neiva · El sabor que sí llena</p>
+</div>
+
+<!-- FAB -->
+<button class="fab" id="fab" onclick="openPanel()">
+  <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96C5 16.1 6.1 17 7 17h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63H15c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1 1 0 0019.5 4H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
+  <span class="fab-badge" id="fabBadge">0</span>
+</button>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-icon">✓</div>
+  <span id="toastMsg">Agregado</span>
+</div>
+
+<!-- CATEGORY NAV -->
+<div class="cat-nav">
+  <div class="cat-nav-title">Nuestro Menú</div>
+  <div class="cat-grid">
+    <div class="cat-tile active" onclick="showCat('broasted',this)">
+      <span class="cat-icon">🍗</span><span class="cat-label">Broasted</span>
+    </div>
+    <div class="cat-tile" onclick="showCat('rosty',this)">
+      <span class="cat-icon">🍖</span><span class="cat-label">Rosty</span>
+    </div>
+    <div class="cat-tile" onclick="showCat('promos',this)">
+      <span class="cat-icon">🎉</span><span class="cat-label">Promos</span>
+    </div>
+    <div class="cat-tile" onclick="showCat('favoritos',this)">
+      <span class="cat-icon">⭐</span><span class="cat-label">Favoritos</span>
+    </div>
+    <div class="cat-tile" onclick="showCat('capitan',this)">
+      <span class="cat-icon">🎖</span><span class="cat-label">Capitán Rapi</span>
+    </div>
+    <div class="cat-tile" onclick="showCat('adiciones',this)">
+      <span class="cat-icon">➕</span><span class="cat-label">Adiciones</span>
+    </div>
+    <div class="cat-tile" onclick="showCat('bebidas',this)">
+      <span class="cat-icon">🥤</span><span class="cat-label">Bebidas</span>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN SECTIONS -->
+<main>
+  <div class="section active" id="broasted">
+    <div class="section-header"><h2>Broasted</h2><div class="section-line"></div></div>
+    <div class="combo-list" id="broasted-list"></div>
+  </div>
+  <div class="section" id="rosty">
+    <div class="section-header"><h2>Rosty</h2><div class="section-line"></div></div>
+    <div class="combo-list" id="rosty-list"></div>
+  </div>
+  <div class="section" id="promos">
+    <div class="section-header"><h2>Promociones</h2><div class="section-line"></div></div>
+    <div class="combo-list" id="promos-list"></div>
+  </div>
+  <div class="section" id="favoritos">
+    <div class="section-header"><h2>Los Favoritos</h2><div class="section-line"></div></div>
+    <div class="grid" id="favoritos-grid"></div>
+  </div>
+  <div class="section" id="capitan">
+    <div class="section-header"><h2>Recomendados Capitán Rapi</h2><div class="section-line"></div></div>
+    <div class="grid" id="capitan-grid"></div>
+  </div>
+  <div class="section" id="adiciones">
+    <div class="section-header"><h2>Adiciones</h2><div class="section-line"></div></div>
+    <div class="small-grid" id="adiciones-grid"></div>
+  </div>
+  <div class="section" id="bebidas">
+    <div class="section-header"><h2>Bebidas</h2><div class="section-line"></div></div>
+    <div class="small-grid" id="bebidas-grid"></div>
+  </div>
+</main>
+
+<!-- SEDES -->
+<div class="sedes-section">
+  <div class="sedes-title">📍 Nuestra Sede</div>
+  <div class="sedes-sub">Toca la tarjeta para verla en el mapa · Toca el pin para cómo llegar</div>
+
+  <div class="map-wrap">
+    <div id="sede-map"></div>
+    <div class="sedes-cards">
+      <div class="sede-card active" id="sc-0" onclick="focusSede(0)">
+        <div class="sede-pin">📍</div>
+        <div class="sede-info">
+          <div class="sede-name">Rapi Broasted Neiva</div>
+          <div class="sede-action">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            Ver en mapa
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>🍗 <strong>Rapi Broasted</strong> · Neiva, Huila · <a href="https://instagram.com/rapibroastedneiva">@rapibroastedneiva</a> · <a href="tel:6088745513">(608) 874-5513</a></p>
+</footer>
+
+<!-- PANEL (Cart + Checkout flow) -->
+<div class="overlay" id="overlay" onclick="overlayBg(event)">
+  <div class="side-panel">
+    <div class="panel-drag"></div>
+    <div class="panel-head">
+      <button class="step-back hidden" id="btnBack" onclick="goBack()">←</button>
+      <div class="panel-head-text">
+        <div class="panel-title" id="panelTitle">Tu Pedido</div>
+        <div class="panel-subtitle" id="panelSub">Revisa lo que elegiste</div>
+      </div>
+      <button class="panel-close" onclick="closePanel()">✕</button>
+    </div>
+    <div class="step-dots">
+      <div class="step-dot active" id="dot1"></div>
+      <div class="step-dot" id="dot2"></div>
+      <div class="step-dot" id="dot3"></div>
+    </div>
+    <div class="panel-body" id="panelBody"></div>
+    <div class="panel-footer">
+      <div class="total-row">
+        <span class="total-label">Total</span>
+        <span class="total-val" id="panelTotal">$0</span>
+      </div>
+      <button class="btn-primary btn-cta" id="btnAction" onclick="nextStep()">
+        <span id="btnActionText">Continuar con el pedido →</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── FOTO PLACEHOLDER ──
+// Icono genérico que se muestra mientras un producto no tiene foto real.
+const PLACEHOLDER = `<div class="img-placeholder"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.4 2 7.8 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3.8L14.6 2H9.4zM12 8a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg><span>Foto</span></div>`;
+
+const fmt = n => '$' + n.toLocaleString('es-CO');
+
+// ── DATA ──
+// Para agregar la foto real de un producto, solo añade img:'ruta-o-url.jpg'
+// al objeto correspondiente (ej: {id:'br1', ..., img:'fotos/combo1.jpg'}).
+const broastedCombos=[
+  {id:'br1',name:'Combo 1',price:44900,tag:'⭐ Popular',desc:'1 Pollo (8 presas) · 4 Arepas · 1 Ensalada · 1 Porción de Papas'},
+  {id:'br2',name:'Combo 2',price:29900,desc:'1/2 Pollo (4 presas) · 2 Arepas · 1 Ensalada · 1 Porción de Papa'},
+  {id:'br3',name:'Combo 3',price:20500,desc:'1/4 de Pollo (2 presas) · 1 Porción de Papa · 1 Ensalada · 1 Gaseosa personal'},
+  {id:'br4',name:'Combo Básico',price:39900,desc:'1 Pollo (8 presas) · 6 Arepas'},
+];
+const rostyCombos=[
+  {id:'ro1',name:'Combo 1',price:40900,desc:'1 Pollo (8 presas) · 4 Arepas · 1 Ensalada · 1 Porción de Papas'},
+  {id:'ro2',name:'Combo 2',price:25900,desc:'1/2 Pollo (4 presas) · 2 Arepas · 1 Ensalada · 1 Porción de Papa'},
+  {id:'ro3',name:'Combo 3',price:16900,desc:'1/4 Pollo (2 presas) · 1 Ensalada · 1 Porción de Papa'},
+];
+const promos=[
+  {id:'pr1',name:'Super Combo Broasted',price:54100,tag:'🔥 Promo',desc:'1 Pollo · 1 Gaseosa 1.5 L · 1 Maduro · 1 Porción de Papas · 4 Arepas · 1 Ensalada'},
+  {id:'pr2',name:'Super Combo Rosty',price:50500,tag:'🔥 Promo',desc:'1 Pollo · 1 Gaseosa 1.5 L · 1 Plátano Maduro · 1 Porción de Papas · 4 Arepas · 1 Ensalada'},
+];
+const favoritos=[
+  {id:'fa1',name:'Alitas',price:35900,tag:'⭐ Favorito',desc:'12 alitas apanadas, 2 porciones de papas y 2 porciones de ensalada.'},
+  {id:'fa2',name:'Hamburguesa Rapi',price:19000,desc:'Pan, pollo apanado, queso, cebolla, tomate, papas, lechuga y ensalada.'},
+  {id:'fa3',name:'Tiras de Pollo',price:22000,desc:'Deditos de pechuga apanados, papas a la francesa, gaseosa personal y salsa de la casa.'},
+  {id:'fa4',name:'Picada de la Casa',price:35900,desc:'Pollo, chorizo y cerdo en salsa de la casa, con porción de papas y patacón.'},
+  {id:'fa5',name:'Churrasco',price:40000,desc:'Porción de 300 g con papas a la francesa y arepa.'},
+  {id:'fa6',name:'Arroz con Pollo',price:29000,desc:'Con porción de papas y ensalada.'},
+  {id:'fa7',name:'Milanesa de Pollo',price:29900,desc:'Pechuga apanada con porción de papas y ensalada.'},
+  {id:'fa8',name:'Consomé',price:8500,desc:'Consomé de pollo, acompañado de arepa.'},
+  {id:'fa9',name:'Pechuga',price:24000,desc:'Con papas a la francesa y ensalada.'},
+];
+const capitan=[
+  {id:'cr1',name:'Mixto de Arroz',price:33000,tag:'🎖 Recomendado',desc:'1/4 pollo Rosty, arroz con pollo, papas a la francesa y arepa.'},
+  {id:'cr2',name:'Picada Campestre',price:89900,tag:'🎖 Para 4 personas',desc:'Morcilla, chorizo, cerdo, 1/4 pollo Rosty, 1/4 pollo Broasted, arepa, 2 mazorcas, papa criolla y 4 yucas fritas.'},
+  {id:'cr3',name:'Alitas x24',price:65900,tag:'🎖 Recomendado',desc:'24 alitas apanadas, 3 porciones de papas y 3 porciones de ensalada.'},
+];
+const adiciones=[
+  {id:'ad1',name:'Papa Francesa',price:7500},{id:'ad2',name:'Porción de Ensalada',price:7500},
+  {id:'ad3',name:'Arroz Blanco',price:5500},{id:'ad4',name:'Patacón (2)',price:6500},
+  {id:'ad5',name:'Arepas (4)',price:4000},{id:'ad6',name:'Plátano Maduro',price:6000},
+  {id:'ad7',name:'Porción de Pollo',price:6500},{id:'ad8',name:'Yuca Frita (4)',price:6500},
+  {id:'ad9',name:'Mazorca (2)',price:7000},
+];
+const bebidas=[
+  {id:'be1',name:'Gaseosa Personal',price:4500},{id:'be2',name:'Jugo Hit',price:5000},
+  {id:'be3',name:'Gaseosa 1.5 L',price:9500},{id:'be4',name:'Gaseosa 2.5 L',price:13000},
+  {id:'be5',name:'Agua',price:4000},{id:'be6',name:'Hatsu',price:7500},
+  {id:'be7',name:'Soda',price:5000},{id:'be8',name:'Cerveza',price:5000},
+  {id:'be9',name:'Cerveza Tres Cordilleras',price:7500},
+];
+
+// ── CART STATE ──
+let cart=[], step=1, payMethod='';
+const formData={nombre:'',direccion:'',telefono:'',nota:''};
+
+// ── CART LOGIC ──
+function addToCart(id,name,price,btn){
+  const ex=cart.find(i=>i.id===id);
+  if(ex) ex.qty++;
+  else cart.push({id,name,price,qty:1});
+  updateCartMeta();
+  document.getElementById('fab').classList.add('visible');
+  showToast(name);
+  if(btn){btn.textContent='✓';btn.classList.add('added');setTimeout(()=>{btn.textContent='+';btn.classList.remove('added')},900)}
+}
+function removeItem(id){cart=cart.filter(i=>i.id!==id);updateCartMeta();if(!cart.length)document.getElementById('fab').classList.remove('visible')}
+function changeQty(id,d){const it=cart.find(i=>i.id===id);if(!it)return;it.qty+=d;if(it.qty<=0)removeItem(id);else updateCartMeta()}
+function getTotal(){return cart.reduce((s,i)=>s+i.price*i.qty,0)}
+function getCount(){return cart.reduce((s,i)=>s+i.qty,0)}
+function updateCartMeta(){
+  const t=getTotal(),c=getCount();
+  document.getElementById('panelTotal').textContent=fmt(t);
+  const b=document.getElementById('fabBadge');b.textContent=c;b.classList.toggle('show',c>0);
+}
+
+// ── TOAST ──
+function showToast(name){
+  const el=document.getElementById('toast');
+  document.getElementById('toastMsg').textContent=name+' agregado';
+  el.classList.add('show');clearTimeout(el._t);
+  el._t=setTimeout(()=>el.classList.remove('show'),2100);
+}
+
+// ── PANEL / FLOW ──
+function openPanel(){
+  step=1;renderStep();
+  document.getElementById('overlay').classList.add('open');
+}
+function closePanel(){document.getElementById('overlay').classList.remove('open')}
+function overlayBg(e){if(e.target===document.getElementById('overlay'))closePanel()}
+
+function goBack(){
+  if(step>1){step--;renderStep()}
+}
+
+function nextStep(){
+  if(step===1){
+    if(!cart.length){showToast('Agrega algo primero');return}
+    step=2;renderStep();
+  } else if(step===2){
+    // validate
+    const n=document.getElementById('f-nombre')?.value.trim();
+    const d=document.getElementById('f-dir')?.value.trim();
+    const t=document.getElementById('f-tel')?.value.trim();
+    if(!n||!d||!t){alert('Por favor completa Nombre, Dirección y Teléfono.');return}
+    if(!payMethod){alert('Selecciona un método de pago.');return}
+    formData.nombre=n;formData.direccion=d;formData.telefono=t;
+    formData.nota=document.getElementById('f-nota')?.value.trim()||'';
+    step=3;renderStep();
+  } else if(step===3){
+    sendWA();
+  }
+}
+
+function renderStep(){
+  const body=document.getElementById('panelBody');
+  const title=document.getElementById('panelTitle');
+  const sub=document.getElementById('panelSub');
+  const btnText=document.getElementById('btnActionText');
+  const btnAction=document.getElementById('btnAction');
+  const btnBack=document.getElementById('btnBack');
+  // dots
+  [1,2,3].forEach(i=>{const d=document.getElementById('dot'+i);d.classList.toggle('active',i===step)})
+  btnBack.classList.toggle('hidden',step===1);
+
+  if(step===1){
+    title.textContent='Tu Pedido';
+    sub.textContent='Revisa tu selección';
+    btnAction.className='btn-primary btn-cta';
+    btnText.textContent='Continuar →';
+    if(!cart.length){
+      body.innerHTML=`<div class="empty-state"><span class="empty-emoji">🛒</span><div class="empty-title">Carrito vacío</div><p style="font-size:0.82rem;color:var(--muted);margin-top:6px">¡Elige algo del menú!</p></div>`;
+    } else {
+      body.innerHTML=cart.map(item=>`
+        <div class="cart-item">
+          <div class="cart-item-info">
+            <div class="cart-item-name">${item.name}</div>
+            <div class="cart-item-unit">${fmt(item.price)} c/u</div>
+            <div class="cart-item-controls">
+              <button class="qty-btn" onclick="changeQty('${item.id}',-1);renderStep()">−</button>
+              <span class="qty-num">${item.qty}</span>
+              <button class="qty-btn" onclick="changeQty('${item.id}',1);renderStep()">+</button>
+              <button class="del-btn" onclick="removeItem('${item.id}');renderStep()">🗑 quitar</button>
+            </div>
+          </div>
+          <div class="cart-item-sub">${fmt(item.price*item.qty)}</div>
+        </div>`).join('');
+    }
+  }
+  else if(step===2){
+    title.textContent='Tus Datos';
+    sub.textContent='Paso 2 de 3 · Datos de entrega';
+    btnAction.className='btn-primary btn-cta';
+    btnText.textContent='Revisar pedido →';
+    body.innerHTML=`
+      <div class="form-section-label">Datos personales</div>
+      <div class="field"><label>Nombre *</label><input id="f-nombre" type="text" placeholder="Tu nombre completo" value="${formData.nombre}"></div>
+      <div class="field"><label>Dirección de entrega *</label><input id="f-dir" type="text" placeholder="Barrio, calle, número..." value="${formData.direccion}"></div>
+      <div class="field"><label>Teléfono *</label><input id="f-tel" type="tel" placeholder="310 000 0000" value="${formData.telefono}"></div>
+      <div class="form-section-label">Método de pago *</div>
+      <div class="pay-group">
+        <div class="pay-opt${payMethod==='efectivo'?' sel':''}" onclick="selPay('efectivo')">
+          <span class="pay-opt-icon">💵</span><span class="pay-opt-label">Efectivo</span>
+        </div>
+        <div class="pay-opt${payMethod==='transferencia'?' sel':''}" onclick="selPay('transferencia')">
+          <span class="pay-opt-icon">🏦</span><span class="pay-opt-label">Transferencia</span>
+        </div>
+      </div>
+      <div class="form-section-label">Nota (opcional)</div>
+      <div class="field"><textarea id="f-nota" rows="2" placeholder="Sin cebolla, extra salsa...">${formData.nota}</textarea></div>
+    `;
+  }
+  else if(step===3){
+    title.textContent='Confirmar';
+    sub.textContent='Paso 3 de 3 · Revisa y envía';
+    btnAction.className='btn-primary btn-wa';
+    btnText.innerHTML=`<svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg> Enviar por WhatsApp`;
+    // summary
+    const itemsHtml=cart.map(i=>`<div class="summary-row"><span>${i.name} ×${i.qty}</span><span>${fmt(i.price*i.qty)}</span></div>`).join('');
+    body.innerHTML=`
+      <div class="summary-box">${itemsHtml}<div class="summary-row"><span>Total</span><span>${fmt(getTotal())}</span></div></div>
+      <div class="summary-data">
+        <div class="summary-data-item"><span class="label">👤 Nombre</span><span class="value">${formData.nombre}</span></div>
+        <div class="summary-data-item"><span class="label">📍 Dirección</span><span class="value">${formData.direccion}</span></div>
+        <div class="summary-data-item"><span class="label">📞 Teléfono</span><span class="value">${formData.telefono}</span></div>
+        <div class="summary-data-item"><span class="label">💳 Pago</span><span class="value">${payMethod==='efectivo'?'Efectivo 💵':'Transferencia 🏦'}</span></div>
+        ${formData.nota?`<div class="summary-data-item"><span class="label">📝 Nota</span><span class="value">${formData.nota}</span></div>`:''}
+      </div>
+      <p style="font-size:0.75rem;color:var(--muted);text-align:center">Al tocar el botón abrirás WhatsApp con tu pedido listo para enviar.</p>`;
+  }
+}
+
+function selPay(m){
+  payMethod=m;
+  document.querySelectorAll('.pay-opt').forEach(el=>el.classList.remove('sel'));
+  if(m==='efectivo') document.querySelectorAll('.pay-opt')[0]?.classList.add('sel');
+  else document.querySelectorAll('.pay-opt')[1]?.classList.add('sel');
+}
+
+function sendWA(){
+  const t=getTotal();
+  let msg='🍗 *PEDIDO — RAPI BROASTED*\n━━━━━━━━━━━━━━━━━━━\n';
+  cart.forEach(i=>{ msg+=`▸ ${i.name} ×${i.qty} — ${fmt(i.price*i.qty)}\n`; });
+  msg+=`━━━━━━━━━━━━━━━━━━━\n*TOTAL: ${fmt(t)}*\n`;
+  msg+=`\n👤 Nombre: ${formData.nombre}`;
+  msg+=`\n📍 Dirección: ${formData.direccion}`;
+  msg+=`\n📞 Teléfono: ${formData.telefono}`;
+  msg+=`\n💳 Pago: ${payMethod==='efectivo'?'Efectivo 💵':'Transferencia 🏦'}`;
+  if(formData.nota) msg+=`\n📝 Nota: ${formData.nota}`;
+  msg+='\n\n¡Gracias! 🙌';
+  // ⚠️ TODO: reemplaza 573000000000 por el WhatsApp real del negocio
+  window.open('https://wa.me/573000000000?text='+encodeURIComponent(msg),'_blank');
+}
+
+// ── RENDER MENU ──
+function card(item){
+  const tag=item.tag?`<div class="card-tag">${item.tag}</div>`:'';
+  const media=item.img?`<img src="${item.img}" alt="${item.name}" loading="lazy">`:PLACEHOLDER;
+  return `<div class="card">
+    <div class="card-img">${media}${tag}</div>
+    <div class="card-body">
+      <div class="card-name">${item.name}</div>
+      <div class="card-desc">${item.desc||''}</div>
+      <div class="card-footer">
+        <span class="card-price">${fmt(item.price)}</span>
+        <button class="add-btn" onclick="addToCart('${item.id}','${item.name.replace(/'/g,"\\'")}',${item.price},this)">+</button>
+      </div>
+    </div></div>`;
+}
+function smallCard(item){
+  return `<div class="small-card">
+    <span class="small-name">${item.name}</span>
+    <div class="small-right">
+      <span class="small-price">${fmt(item.price)}</span>
+      <button class="add-btn" style="width:26px;height:26px;font-size:0.9rem" onclick="addToCart('${item.id}','${item.name}',${item.price},this)">+</button>
+    </div></div>`;
+}
+function comboCard(item){
+  const tagBadge=item.tag?`<span class="combo-badge">${item.tag}</span>`:'';
+  const media=item.img?`<img src="${item.img}" alt="${item.name}" loading="lazy">`:PLACEHOLDER;
+  return `<div class="combo-card">
+    <div class="combo-img">${media}</div>
+    <div class="combo-info">
+      <div class="combo-name">${item.name}${tagBadge}</div>
+      <div class="combo-desc">${item.desc}</div>
+      ${item.alt?`<div class="combo-alt">${item.alt}</div>`:''}
+    </div>
+    <div class="combo-right">
+      <div class="combo-price">${fmt(item.price)}</div>
+      <button class="combo-btn" onclick="addToCart('${item.id}','${item.name.replace(/'/g,"\\'")}',${item.price},this)">Agregar +</button>
+    </div></div>`;
+}
+
+document.getElementById('broasted-list').innerHTML=broastedCombos.map(comboCard).join('');
+document.getElementById('rosty-list').innerHTML=rostyCombos.map(comboCard).join('');
+document.getElementById('promos-list').innerHTML=promos.map(comboCard).join('');
+document.getElementById('favoritos-grid').innerHTML=favoritos.map(card).join('');
+document.getElementById('capitan-grid').innerHTML=capitan.map(card).join('');
+document.getElementById('adiciones-grid').innerHTML=adiciones.map(smallCard).join('');
+document.getElementById('bebidas-grid').innerHTML=bebidas.map(smallCard).join('');
+
+function showCat(id,el){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.cat-tile').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+  el.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+  document.querySelector('main').scrollIntoView({behavior:'smooth'});
+}
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+// ── SEDE MAP ──
+const SEDES = [
+  {
+    name: 'Rapi Broasted Neiva',
+    lat: 2.9388210, lng: -75.2870408,
+    apple: 'https://maps.apple.com/?ll=2.9388210,-75.2870408&q=Rapi+Broasted+Neiva',
+    google: 'https://www.google.com/maps/search/Rapi+Broasted+Neiva/@2.9388210,-75.2870408,17z'
+  }
+];
+
+// Custom red marker icon
+function makeIcon(active) {
+  return L.divIcon({
+    className: '',
+    html: `<div style="
+      width:36px;height:36px;
+      background:${active ? '#CC0000' : '#888'};
+      border-radius:50% 50% 50% 0;
+      transform:rotate(-45deg);
+      border:3px solid #fff;
+      box-shadow:0 3px 12px rgba(0,0,0,0.35);
+      display:flex;align-items:center;justify-content:center;
+    "><div style="transform:rotate(45deg);font-size:14px;line-height:1">🍗</div></div>`,
+    iconSize: [36, 36],
+    iconAnchor: [18, 36],
+    popupAnchor: [0, -38]
+  });
+}
+
+let sedeMap, markers = [], activeIdx = 0;
+
+function initMap() {
+  const centerLat = SEDES.reduce((s,p)=>s+p.lat,0)/SEDES.length;
+  const centerLng = SEDES.reduce((s,p)=>s+p.lng,0)/SEDES.length;
+
+  sedeMap = L.map('sede-map', {
+    center: [centerLat, centerLng],
+    zoom: 15,
+    zoomControl: true,
+    scrollWheelZoom: false
+  });
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>',
+    maxZoom: 19
+  }).addTo(sedeMap);
+
+  SEDES.forEach((s, i) => {
+    const isFirst = i === 0;
+    const marker = L.marker([s.lat, s.lng], { icon: makeIcon(isFirst) })
+      .addTo(sedeMap)
+      .bindPopup(`
+        <div style="font-family:'Barlow Condensed',sans-serif;min-width:160px">
+          <div style="font-weight:800;font-size:1rem;text-transform:uppercase;color:#CC0000;margin-bottom:6px">🍗 ${s.name}</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <a href="${s.apple}" target="_blank" style="display:flex;align-items:center;gap:6px;background:#CC0000;color:#fff;text-decoration:none;padding:7px 10px;border-radius:8px;font-weight:700;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.5px">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+              Cómo llegar
+            </a>
+          </div>
+        </div>`, { maxWidth: 220 });
+    marker.on('click', () => {
+      setActiveCard(i);
+    });
+    markers.push(marker);
+  });
+
+  markers[0].openPopup();
+}
+
+function focusSede(idx) {
+  activeIdx = idx;
+  setActiveCard(idx);
+  sedeMap.flyTo([SEDES[idx].lat, SEDES[idx].lng], 16, { duration: 0.8 });
+  setTimeout(() => markers[idx].openPopup(), 850);
+}
+
+function setActiveCard(idx) {
+  activeIdx = idx;
+  document.querySelectorAll('.sede-card').forEach((el, i) => {
+    el.classList.toggle('active', i === idx);
+  });
+  markers.forEach((m, i) => m.setIcon(makeIcon(i === idx)));
+}
+
+document.addEventListener('DOMContentLoaded', initMap);
+</script>
+</body>
+</html>
