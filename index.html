@@ -376,8 +376,8 @@ footer strong{color:var(--yellow)}
         <span id="hoursLabel">Abierto Ahora</span>
         <div class="hours-tooltip">
           <strong>🕐 Horario</strong>
-          Todos los días<br>10:00 AM — 9:30 PM
-          <div class="dom-note">🛵 Domicilios hasta las 9:00 PM<br>🕣 Tiempo estimado: Aproximadamente 45 minutos</div>
+          Todos los días<br>11:00 AM — 9:00 PM
+          <div class="dom-note">🛵 Domicilios hasta las 8:30 PM<br>🕣 Tiempo estimado: Aproximadamente 45 minutos</div>
         </div>
       </div>
     </div>
@@ -811,13 +811,13 @@ document.getElementById('capitan-grid').innerHTML=capitan.map(card).join('');
 document.getElementById('adiciones-grid').innerHTML=adiciones.map(smallCard).join('');
 document.getElementById('bebidas-grid').innerHTML=bebidas.map(smallCard).join('');
 
-// ── ESTADO ABIERTO/CERRADO (según horario real: todos los días 10:00 AM - 9:30 PM, hora de Colombia) ──
+// ── ESTADO ABIERTO/CERRADO (según horario real: todos los días 11:00 AM - 9:00 PM, hora de Colombia) ──
 function updateOpenStatus(){
   const parts=new Intl.DateTimeFormat('en-US',{timeZone:'America/Bogota',hour12:false,hour:'2-digit',minute:'2-digit'}).formatToParts(new Date());
   const h=Number(parts.find(p=>p.type==='hour').value);
   const m=Number(parts.find(p=>p.type==='minute').value);
   const nowMin=h*60+m;
-  const open=nowMin>=10*60 && nowMin<21*60+30;
+  const open=nowMin>=11*60 && nowMin<21*60;
   const pill=document.getElementById('hoursPill');
   const label=document.getElementById('hoursLabel');
   if(pill) pill.classList.toggle('closed',!open);
